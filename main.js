@@ -1,28 +1,28 @@
 import * as THREE from './CMapJS/Libs/three.module.js';
+import DataHandler from './DataHandler.js';
 
 import { GUI } from './lil-gui.module.min.js';
+import Viewer from './viewer.js';
 
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xdddddd);
+// const scene = new THREE.Scene();
+// scene.background = new THREE.Color(0xdddddd);
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100.0);
-camera.position.set(0, 0, 2);
+// const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100.0);
+// camera.position.set(0, 0, 2);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-
+const dataHandler = new DataHandler();
+const viewer = new Viewer( renderer );
+// viewer.initializeMeshRenderer()
 
 window.addEventListener('resize', function() {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-
-	console.log(scene)
+	viewer.resize( width, height );
 });
 
 const guiParams = {
@@ -54,7 +54,8 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
             // document.getElementById('fileContent').textContent = content;
 			guiParams.content = `File content: ${content}`;
 			console.log(guiParams.content)
-
+			dataHandler.loadMeshFromString(content);
+			viewer.initializeMeshRenderer(dataHandler.mesh);
 		};
         reader.readAsText(file);
         // Add additional logic to handle the file here
@@ -80,13 +81,15 @@ function update ()
 
 function render()
 {
-	renderer.render(scene, camera);
+	view
+	// renderer.render(scene, camera);
 }
 
 function mainloop()
 {
     update();
-    render();
+    // render();
+	viewer.render( );
     requestAnimationFrame(mainloop);
 }
 
