@@ -4,12 +4,9 @@ import DataHandler from './DataHandler.js';
 import { GUI } from './lil-gui.module.min.js';
 import Viewer from './viewer.js';
 
+import MouseController from './MouseController.js';
+import KeyboardController from './KeyboardController.js';
 
-// const scene = new THREE.Scene();
-// scene.background = new THREE.Color(0xdddddd);
-
-// const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100.0);
-// camera.position.set(0, 0, 2);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -17,25 +14,24 @@ document.body.appendChild( renderer.domElement );
 
 const dataHandler = new DataHandler();
 const viewer = new Viewer( renderer );
-// viewer.initializeMeshRenderer()
 
 
 const mouse = new THREE.Vector2;
-function setMouse(event) {
-	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-	mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+function setMouse(x, y) {
+	mouse.x = (x / window.innerWidth) * 2 - 1;
+	mouse.y = - (y / window.innerHeight) * 2 + 1;
 }
 
-const selectMouseDown = function( event ) {
-	setMouse(event);
-	// console.log(event.button)
-	if(event.button == 2){
-		const fd = viewer.getFace( mouse );
-		viewer.colorFace( fd, guiParams.activeColor);
-	}
-}
+// const selectMouseDown = function( event ) {
+// 	setMouse(event);
+// 	// console.log(event.button)
+// 	if(event.button == 2){
+// 		const fd = viewer.getFace( mouse );
+// 		viewer.colorFace( fd, guiParams.activeColor);
+// 	}
+// }
 
-renderer.domElement.addEventListener( 'pointerdown', selectMouseDown );
+// renderer.domElement.addEventListener( 'pointerdown', selectMouseDown );
 
 
 window.addEventListener('resize', function() {
@@ -76,6 +72,74 @@ const guiParams = {
 	edgeSize: 1,
 	
 };
+
+
+
+
+
+
+
+
+const mouseController = new MouseController(
+	renderer.domElement,
+	{
+		left: {
+			down: ( x, y ) => {
+				console.log( `left down ${x} ${y}` );
+			},
+			up: ( x, y ) => {
+				console.log( `left up ${x} ${y}` );
+			},
+		},
+		middle: {
+			down: ( x, y ) => {
+				console.log( `middle down ${x} ${y}` );
+			},
+			up: ( x, y ) => {
+				console.log( `middle down ${x} ${y}` );
+			},
+		},
+		right: {
+			down: ( x, y ) => {
+				console.log( `right down ${x} ${y}` );
+
+				setMouse( x, y );
+				const fd = viewer.getFace( mouse );
+				viewer.colorFace( fd, guiParams.activeColor );
+			},
+			up: ( x, y ) => {
+				console.log( `right down ${x} ${y}` );
+			},
+		},
+		move: ( x, y ) => {
+				console.log( `move ${x} ${y}` );
+		},
+	}
+);
+
+const keyboardController = new KeyboardController(
+	renderer.domElement,
+	{
+		down: {
+			Space: ( ) => {
+				console.log( `" " down` );
+			},
+		},
+		up: {
+			Space: ( ) => {
+				console.log( `" " up` );
+			}
+		},
+	}
+);
+
+
+
+
+
+
+
+
 
 const gui = new GUI();
 const guiFileFolder = gui.addFolder("File")
@@ -128,7 +192,6 @@ function reset () {
 	dataHandler.reset();
 }
 
-window.red = new THREE.Color(0xFF0000);
 
 window.viewer = viewer;
 
