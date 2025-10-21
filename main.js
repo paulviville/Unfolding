@@ -19,6 +19,25 @@ const dataHandler = new DataHandler();
 const viewer = new Viewer( renderer );
 // viewer.initializeMeshRenderer()
 
+
+const mouse = new THREE.Vector2;
+function setMouse(event) {
+	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+const selectMouseDown = function( event ) {
+	setMouse(event);
+	// console.log(event.button)
+	if(event.button == 2){
+		const fd = viewer.getFace( mouse );
+		viewer.colorFace( fd, guiParams.activeColor);
+	}
+}
+
+renderer.domElement.addEventListener( 'pointerdown', selectMouseDown );
+
+
 window.addEventListener('resize', function() {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -26,8 +45,12 @@ window.addEventListener('resize', function() {
 });
 
 const guiParams = {
-	loadFile: function() {
+	loadMesh: function() {
 		document.getElementById('fileInput').click();
+	},
+
+	loadProject: function() {
+
 	},
 
 	fileName: "fileName.off",
@@ -36,12 +59,36 @@ const guiParams = {
 	saveFile: function() {
 		saveFile()
 	},
+
+	exportSVG: function() {
+
+	},
+
+	reset: function() {
+		reset();
+	},
+
+	debug: function() {
+	},
+
+	activeColor: new THREE.Color(0xFF0000),
+
+	edgeSize: 1,
+	
 };
 
 const gui = new GUI();
-gui.add(guiParams, 'loadFile').name('Load File');
-gui.add(guiParams, 'fileName');
-gui.add(guiParams, 'saveFile').name('Save File');
+const guiFileFolder = gui.addFolder("File")
+guiFileFolder.add(guiParams, 'loadMesh').name('Load Mesh');
+guiFileFolder.add(guiParams, 'fileName');
+guiFileFolder.add(guiParams, 'saveFile').name('Save File');
+gui.addColor(guiParams, 'activeColor').name('Color');
+gui.add(guiParams, 'reset').name('Reset');
+gui.add(guiParams, 'debug').name('debug');
+
+const guiViewerFolder = gui.addFolder("View Settings");
+
+
 
 document.getElementById('fileInput').addEventListener('change', function(event) {
     const file = event.target.files[0];
@@ -58,6 +105,7 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 			viewer.initializeMeshRenderer(dataHandler.mesh);
 		};
         reader.readAsText(file);
+		document.getElementById('fileInput').value = null;
         // Add additional logic to handle the file here
 	}
 });
@@ -74,16 +122,32 @@ function saveFile () {
 	document.body.removeChild(link);
 }
 
+function reset () {
+	console.log("reseting")
+	viewer.reset();
+	dataHandler.reset();
+}
+
+window.red = new THREE.Color(0xFF0000);
+
+window.viewer = viewer;
+
+window.viewerColorTest = function (fd) {
+	viewer.colorFace(fd, guiParams.activeColor)
+}
+
+
+
 function update ()
 {
 	// console.log("update")
 }
 
-function render()
-{
-	view
-	// renderer.render(scene, camera);
-}
+// function render()
+// {
+// 	// view
+// 	// renderer.render(scene, camera);
+// }
 
 function mainloop()
 {
